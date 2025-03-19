@@ -1,3 +1,4 @@
+# api/index.py
 import json
 import os
 import numpy as np
@@ -10,27 +11,21 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-app = Flask(__name__, static_folder='public', static_url_path='')
+app = Flask(__name__, static_folder='../public', static_url_path='')
 CORS(app, resources={r"/*": {"origins": "*"}},
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      allow_headers=["Content-Type", "Authorization"])
 
-# Load the transformer model (this may take a few seconds on startup).
+# Load the transformer model.
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 class Document:
     def __init__(self, doc_id, content, embedding):
         self.id = doc_id
         self.content = content
-        # Ensure embedding is a NumPy array.
         self.embedding = np.array(embedding)
 
 def load_knowledge_base(file_path):
-    """
-    Loads the knowledge base from a JSON file.
-    Each document in the file should include "id", "content", and optionally an "embedding".
-    If an embedding is missing, it will be computed using the SentenceTransformer model.
-    """
     with open(file_path, "r") as f:
         data = json.load(f)
     docs = []
@@ -43,20 +38,13 @@ def load_knowledge_base(file_path):
         docs.append(Document(doc_id, content, embedding))
     return docs
 
-# Load the knowledge base from an external JSON file.
-knowledge_base_file = "knowledge_base.json"
+knowledge_base_file = "../knowledge_base.json"
 document_embeddings = load_knowledge_base(knowledge_base_file)
 
 def calculate_cosine_similarity(vecA, vecB):
-    """Calculates cosine similarity between two vectors."""
     return np.dot(vecA, vecB) / (np.linalg.norm(vecA) * np.linalg.norm(vecB))
 
 def retrieve_relevant_documents(query):
-    """
-    Computes the embedding for the query,
-    then calculates cosine similarity with each document's embedding.
-    Returns the content of the top three most similar documents.
-    """
     query_embedding = model.encode(query)
     scored_docs = [
         (doc, calculate_cosine_similarity(query_embedding, doc.embedding))
@@ -114,7 +102,6 @@ def generate():
         ]
     }
 
-    # Retrieve the API key from environment variables.
     gemini_api_key = os.environ.get("GEMINI_API_KEY")
     if not gemini_api_key:
         return jsonify({"error": "GEMINI_API_KEY not set in environment variables."}), 500
@@ -130,6 +117,3 @@ def generate():
         return response.text, response.status_code, {"Content-Type": "application/json"}
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
