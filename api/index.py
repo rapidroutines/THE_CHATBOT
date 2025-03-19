@@ -111,6 +111,3 @@ def generate():
         return response.text, response.status_code, {"Content-Type": "application/json"}
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run()
