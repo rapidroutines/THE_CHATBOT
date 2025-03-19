@@ -1,17 +1,15 @@
-# api/index.py
 import json
 import os
 import numpy as np
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
-app = Flask(__name__, static_folder='../public', static_url_path='')
+app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}},
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      allow_headers=["Content-Type", "Authorization"])
@@ -74,10 +72,6 @@ def generate_prompt(query, relevant_docs, context):
     )
     return "".join(parts)
 
-@app.route("/")
-def index():
-    return redirect("/index.html")
-
 @app.route("/generate", methods=["POST"])
 def generate():
     try:
@@ -117,3 +111,6 @@ def generate():
         return response.text, response.status_code, {"Content-Type": "application/json"}
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run()
