@@ -1,6 +1,6 @@
 # Install
 run the following for dependencies
-`pip install flask flask-cors sentence-transformers numpy requests
+`pip install flask flask-cors sentence-transformers numpy requests python-dotenv
 `
 
 # RUN
