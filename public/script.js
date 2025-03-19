@@ -28,7 +28,7 @@ async function handleOutgoingChat() {
     };
 
     try {
-        const response = await fetch("https://the-chatbot.vercel.app/generate", {
+        const response = await fetch("http://the-chatbot.vercel.app/generate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
